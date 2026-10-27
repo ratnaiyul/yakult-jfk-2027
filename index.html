@@ -153,7 +153,7 @@
     <h3>PEMBAYARAN TUNAI</h3>
 
     <label for="uang">Uang masuk (Rp)</label>
-    <input id="uang" type="number" min="0"
+    <input id="uang" type="text"
       inputmode="numeric" placeholder="Masukkan uang">
 
     <p>Kembalian</p>
@@ -217,9 +217,11 @@
       document.getElementById("total").textContent =
         rupiah(total);
 
-      const uang = Number(
-        document.getElementById("uang").value
-      ) || 0;
+      
+const uang = Number(
+  document.getElementById("uang").value.replace(/,/g, "")
+) || 0;
+
 
       const kembalian = uang - total;
 
@@ -238,8 +240,19 @@
       }
     }
 
-    document.getElementById("uang").addEventListener(
-      "input", hitungTotal
+    
+const inputUang = document.getElementById("uang");
+
+inputUang.addEventListener("input", function () {
+  let angka = this.value.replace(/\D/g, "");
+
+  this.value = angka
+    ? Number(angka).toLocaleString("en-US")
+    : "";
+
+  hitungTotal();
+});
+
     );
 
     function resetKalkulator() {
