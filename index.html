@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalkulator Yakult JFK 2027</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b54432;
+      margin-bottom: 5px;
+    }
+
+    .subjudul {
+      text-align: center;
+      color: #888;
+      margin-bottom: 25px;
+    }
+
+    .produk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .produk {
+      background: white;
+      border: 2px solid #efc9c2;
+      border-radius: 18px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .produk h3 {
+      font-size: 16px;
+      margin: 0 0 14px;
+    }
+
+    .kontrol {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      background: #f7f7f7;
+      border-radius: 12px;
+      padding: 5px;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 22px;
+      background: white;
+      color: #333;
+      touch-action: manipulation;
+    }
+
+    .jumlah {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .subtotal {
+      font-size: 13px;
+      margin-top: 12px;
+      color: #777;
+    }
+
+    .subtotal strong { color: #333; }
+
+    .total {
+      background: #b54432;
+      color: white;
+      padding: 20px;
+      margin-top: 22px;
+      border-radius: 18px;
+    }
+
+    .total h2 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .pembayaran {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+
+    .pembayaran label {
+      display: block;
+      margin-top: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 18px;
+      margin-top: 7px;
+    }
+
+    #status {
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .reset {
+      display: block;
+      margin: 18px auto;
+      border: 1px solid #ddd;
+      padding: 12px 25px;
+    }
+
+    @media (max-width: 380px) {
+      body { padding: 12px; }
+      .produk { padding: 10px; }
+      .produk h3 { font-size: 14px; }
+      button { padding: 9px; }
+      .subtotal { font-size: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Kalkulator Yakult</h1>
+  <p class="subjudul">Jakarta Fair 2027</p>
+
+  <div class="produk-grid" id="daftar-produk"></div>
+
+  <div class="total">
+    <p>Total pembayaran</p>
+    <h2 id="total">Rp 0</h2>
+  </div>
+
+  <div class="pembayaran">
+    <h3>PEMBAYARAN TUNAI</h3>
+
+    <label for="uang">Uang masuk (Rp)</label>
+    <input id="uang" type="number" min="0"
+      inputmode="numeric" placeholder="Masukkan uang">
+
+    <p>Kembalian</p>
+    <h2 id="kembalian">Rp 0</h2>
+    <p id="status"></p>
+  </div>
+
+  <button class="reset" onclick="resetKalkulator()">
+    Reset Transaksi
+  </button>
+
+  <script>
+    const produk = [
+      { nama: "ORIGINAL", harga: 10500, jumlah: 0, warna: "#df5947" },
+      { nama: "MANGGA", harga: 11000, jumlah: 0, warna: "#efa536" },
+      { nama: "STROBERI", harga: 11000, jumlah: 0, warna: "#db3989" },
+      { nama: "LIGHT", harga: 13000, jumlah: 0, warna: "#4382b8" }
+    ];
+
+    const rupiah = angka =>
+      "Rp " + angka.toLocaleString("id-ID");
+
+    function tampilkanProduk() {
+      document.getElementById("daftar-produk").innerHTML =
+        produk.map((p, i) => `
+          <div class="produk"
+            style="border-color:${p.warna}66">
+            <h3>
+              <span style="color:${p.warna}">●</span>
+              ${p.nama}
+            </h3>
+
+            <div class="kontrol">
+              <button onclick="ubahJumlah(${i},-1)">−</button>
+              <span class="jumlah">${p.jumlah}</span>
+              <button onclick="ubahJumlah(${i},1)">+</button>
+            </div>
+
+            <div class="subtotal">
+              Subtotal:
+              <strong>${rupiah(p.harga * p.jumlah)}</strong>
+            </div>
+          </div>
+        `).join("");
+
+      hitungTotal();
+    }
+
+    function ubahJumlah(index, perubahan) {
+      produk[index].jumlah = Math.max(
+        0, produk[index].jumlah + perubahan
+      );
+      tampilkanProduk();
+    }
+
+    function hitungTotal() {
+      const total = produk.reduce(
+        (sum, p) => sum + p.harga * p.jumlah, 0
+      );
+
+      document.getElementById("total").textContent =
+        rupiah(total);
+
+      const uang = Number(
+        document.getElementById("uang").value
+      ) || 0;
+
+      const kembalian = uang - total;
+
+      document.getElementById("kembalian").textContent =
+        rupiah(Math.max(0, kembalian));
+
+      const status = document.getElementById("status");
+
+      if (uang === 0 && total === 0) {
+        status.textContent = "";
+      } else if (uang < total) {
+        status.textContent = "Uang masih kurang " +
+          rupiah(total - uang);
+      } else {
+        status.textContent = "Pembayaran cukup";
+      }
+    }
+
+    document.getElementById("uang").addEventListener(
+      "input", hitungTotal
+    );
+
+    function resetKalkulator() {
+      produk.forEach(p => p.jumlah = 0);
+      document.getElementById("uang").value = "";
+      tampilkanProduk();
+    }
+
+    tampilkanProduk();
+  </script>
+</body>
+</html>
